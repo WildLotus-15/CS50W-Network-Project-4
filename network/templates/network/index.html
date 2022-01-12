@@ -1,17 +1,24 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <h1>Posts</h1>
-    <h2>New Post</h2>
-    <form action="{% url 'index' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit">
-    </form>
+    <h1>All Posts</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">New Post</h5>
+            <form action="{% url 'index' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" class="btn btn-primary" value="Post">
+            </form>
+        </div>
+    </div>
     {% for post in posts %}
-        <div>
-            <a href="{% url 'profile' post.author.pk %}">{{ post.author }}</a> wrote {{ post.post }} on {{ post.date }}
-            <p>Likes: {{ post.likes }}</p>
+        <div class="card">
+            <div class="card-body">
+                <a href="{% url 'profile' post.author.pk %}">{{ post.author }}</a>
+                <p class="card-text">{{ post.post }}</p>
+                <h6 class="card-subtitle mb-2 text-muted">{{ post.date }}</h6>
+            </div>
         </div>
     {% endfor %}
 {% endblock %}
