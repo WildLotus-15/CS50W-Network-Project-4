@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from .models import User, Post
@@ -35,6 +35,13 @@ def profile(request, profile_id):
         "profile_followers": followers,
         "number_of_followers": number_of_followers,
     })
+
+def add_follower(request, profile_id):
+    if request.method == "POST":
+        user = User.objects.get(pk=profile_id)
+        user.followers.add(request.user)
+        return HttpResponseRedirect(reverse("profile", args=(user.id,)))
+
 def login_view(request):
     if request.method == "POST":
 

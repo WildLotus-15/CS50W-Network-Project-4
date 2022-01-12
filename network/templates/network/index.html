@@ -11,6 +11,7 @@
     {% for post in posts %}
         <div>
             <a href="{% url 'profile' post.author.pk %}">{{ post.author }}</a> wrote {{ post.post }} on {{ post.date }}
+            <p>Likes: {{ post.likes }}</p>
         </div>
     {% endfor %}
 {% endblock %}

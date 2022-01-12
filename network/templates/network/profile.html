@@ -6,7 +6,12 @@
     <h4>Followers: {{ number_of_followers }}</h4>
     <ul>
         {% for follower in profile_followers %}
-            <li>{{ follower.username }}</li>
+        <li>{{ follower.username }}</li>
         {% endfor %}
     </ul>
+
+    <form action="{% url 'follow' profile.id %}" method="post">
+        {% csrf_token %}
+        <button>Follow</button>
+    </form>
 {% endblock %}
