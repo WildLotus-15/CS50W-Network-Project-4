@@ -17,6 +17,7 @@
             <div class="card-body">
                 <a href="{% url 'profile' post.author.pk %}">{{ post.author }}</a>
                 <p class="card-text">{{ post.post }}</p>
+                <p class="card-text">Likes: {{ post.likes }}</p>
                 <h6 class="card-subtitle mb-2 text-muted">{{ post.date }}</h6>
             </div>
         </div>

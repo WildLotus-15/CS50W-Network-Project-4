@@ -9,7 +9,7 @@ from .models import User, Post
 from .forms import NewPostForm
 
 def index(request):
-    posts = Post.objects.order_by('-date')
+    posts = Post.objects.order_by('-date') # Getting most recent posts
     if request.method == "POST":
         form = NewPostForm(request.POST)
         if form.is_valid():
