@@ -2,7 +2,15 @@
 
 {% block body %}
     <h1>Posts</h1>
+    <h2>New Post</h2>
+    <form action="{% url 'index' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit">
+    </form>
     {% for post in posts %}
-        <div>{{ post.author }} wrote {{ post.post }} on {{ post.date }}</div>
+        <div>
+            <a href="{% url 'profile' post.author.pk %}">{{ post.author }}</a> wrote {{ post.post }} on {{ post.date }}
+        </div>
     {% endfor %}
 {% endblock %}

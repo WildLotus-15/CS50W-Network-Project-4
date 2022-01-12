@@ -9,12 +9,7 @@ from .models import User, Post
 from .forms import NewPostForm
 
 def index(request):
-    posts = Post.objects.all()
-    return render(request, "network/index.html", {
-        "posts": posts
-    })
-
-def new_post(request):
+    posts = Post.objects.order_by('-date')
     if request.method == "POST":
         form = NewPostForm(request.POST)
         if form.is_valid():
@@ -23,13 +18,19 @@ def new_post(request):
             NewPost.save()
             return HttpResponseRedirect(reverse("index"))
         else:
-            return render(request, "network/new.html", {
-                "form": form
+            return render(request, "network/index.html", {
+                "form": form,
             })
-    return render(request, "network/new.html", {
-        "form": NewPostForm()
+    return render(request, "network/index.html", {
+        "form": NewPostForm,
+        "posts": posts
     })
 
+def profile(request, profile_id):
+    profile = User.objects.get(pk=profile_id)
+    return render(request, "network/profile.html", {
+        "profile": profile
+    })
 def login_view(request):
     if request.method == "POST":
 
