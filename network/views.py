@@ -28,8 +28,12 @@ def index(request):
 
 def profile(request, profile_id):
     profile = User.objects.get(pk=profile_id)
+    followers = profile.followers.all()
+    number_of_followers = len(followers)
     return render(request, "network/profile.html", {
-        "profile": profile
+        "profile": profile,
+        "profile_followers": followers,
+        "number_of_followers": number_of_followers,
     })
 def login_view(request):
     if request.method == "POST":
