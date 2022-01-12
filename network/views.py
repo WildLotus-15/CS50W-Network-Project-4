@@ -30,10 +30,12 @@ def profile(request, profile_id):
     profile = User.objects.get(pk=profile_id)
     followers = profile.followers.all()
     number_of_followers = len(followers)
+    posts = Post.objects.filter(author=profile).order_by('-date')
     return render(request, "network/profile.html", {
         "profile": profile,
         "profile_followers": followers,
         "number_of_followers": number_of_followers,
+        "posts": posts
     })
 
 def add_follower(request, profile_id):
