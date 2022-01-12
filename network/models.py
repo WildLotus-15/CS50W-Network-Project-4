@@ -4,6 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     followers = models.ManyToManyField("self", blank=True, related_name="followers")
+    bio = models.CharField(max_length=64, default="No Bio")
 
 class Post(models.Model):
     post = models.TextField()
