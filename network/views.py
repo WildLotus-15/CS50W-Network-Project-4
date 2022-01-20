@@ -70,11 +70,18 @@ def remove_follower(request, profile_id):
 def followings(request, profile_id):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
+
     user = User.objects.get(pk=profile_id)
     followings = user.followings.all()
     posts = Post.objects.filter(author__in=followings).order_by('-date')
+
+    paginator = Paginator(posts, 5)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "network/followings.html", {
-        "posts_of_followings": posts
+        "page_obj": page_obj
     })
 
 def login_view(request):
