@@ -4,15 +4,23 @@
     <div class="card">
         <div class="card-header" style="display: flex; height: 80px;">
             <div style="flex: 1;">
-                <span style="float: left; font-size: 30px;">{{ profile.username }}</span>
-                <span style="float: left; margin-left: 40px;">
-                    <form action="{% url 'follow' profile.id %}" method="post" style="margin-top: 6px">
-                        {% csrf_token %}
-                        <button class="btn btn-primary">Follow</button>
-                </form>
-            </span>
+                <span style="float: left; font-size: 30px;">{{ profile.username }} </span>
+                {% if request.user != profile %}
+                    <span style="float: left; margin-left: 40px;">
+                        <form action="{% url 'follow' profile.id %}" method="post" style="margin-top: 6px">
+                            {% csrf_token %}
+                            <button class="btn btn-primary">Follow</button>
+                        </form>
+                    </span>
+                    <span style="float: left; margin-top: 6px; margin-left: 10px;">
+                        <form action="{% url 'unfollow' profile.id %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-danger">Unfollow</button>
+                        </form>
+                    </span>
+                {% endif %}
             </div>
-            <div style="flex: 1; margin-top: 12px; margin-right: 280px;">
+            <div style="flex: 1; margin-top: 12px; margin-right: 307px; font-size: 18px;">
                 <span style="margin-right: 50px;">{{ number_of_posts }} posts</span>
                 <span style="margin-right: 50px">{{ number_of_followers }} followers</span>
                 <span>{{ number_of_followings }} following</span>
@@ -22,11 +30,27 @@
             <p class="card-text" style="text-align: center;">{{ profile.bio }}</p>
         </div>
     </div>
-    
+
+    <h2>Followers:</h2>
+    <ul>
+        {% for follower in profile_followers %}
+            <li>{{ follower.username }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Followings:</h2>
+    <ul>
+        {% for following in profile_followings %}
+            <li>{{ following.username }}</li>
+        {% endfor %}
+    </ul>
+
     {% for post in posts %}
         <div class="card">
             <div class="card-body">
-                <p class="card-text">{{ post.author }}</p>
+                <p class="card-text">
+                    <a href="{% url 'profile' post.author.id %}">{{ post.author }}</a>
+                </p>
                 <p class="card-text">{{ post.post }}</p>
                 <p class="card-text">Likes: {{ post.likes }}</p>
                 <h6 class="card-subtitle mb-2 text-muted">{{ post.date }}</h6>

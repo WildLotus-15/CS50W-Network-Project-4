@@ -29,22 +29,43 @@ def index(request):
 def profile(request, profile_id):
     profile = User.objects.get(pk=profile_id)
     followers = profile.followers.all()
+    followings = profile.followings.all()
     number_of_followers = len(followers)
+    number_of_followings = len(followings)
     posts = Post.objects.filter(author=profile).order_by('-date')
     number_of_posts = len(posts)
     return render(request, "network/profile.html", {
         "profile": profile,
         "profile_followers": followers,
         "number_of_followers": number_of_followers,
+        "profile_followings": followings,
+        "number_of_followings": number_of_followings,
         "posts": posts,
         "number_of_posts": number_of_posts,
     })
 
 def add_follower(request, profile_id):
     if request.method == "POST":
-        user = User.objects.get(pk=profile_id)
-        user.followers.add(request.user)
-        return HttpResponseRedirect(reverse("profile", args=(user.id,)))
+        profile = User.objects.get(pk=profile_id)
+        request_user = User.objects.get(pk=request.user.id)
+        profile.followers.add(request.user)
+        request_user.followings.add(profile)
+        return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
+
+def remove_follower(request, profile_id):
+    if request.method == "POST":
+        profile = User.objects.get(pk=profile_id)
+        profile.followers.remove(request.user)
+        request.user.followings.remove(profile)
+        return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
+
+def followings(request, profile_id):
+    user = User.objects.get(pk=profile_id)
+    followings = user.followings.all()
+    posts = Post.objects.filter(author__in=followings).order_by('-date')
+    return render(request, "network/followings.html", {
+        "posts_of_followings": posts
+    })
 
 def login_view(request):
     if request.method == "POST":
