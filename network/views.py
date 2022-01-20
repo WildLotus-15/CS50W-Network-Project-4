@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
@@ -8,8 +8,15 @@ from .models import User, Post
 
 from .forms import NewPostForm
 
+from django.core.paginator import Paginator
+
 def index(request):
     posts = Post.objects.order_by('-date') # Getting most recent posts
+    paginator = Paginator(posts, 10)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     if request.method == "POST":
         form = NewPostForm(request.POST)
         if form.is_valid():
@@ -23,7 +30,8 @@ def index(request):
             })
     return render(request, "network/index.html", {
         "form": NewPostForm,
-        "posts": posts
+        "posts": posts,
+        "page_obj": page_obj
     })
 
 def profile(request, profile_id):
@@ -60,6 +68,8 @@ def remove_follower(request, profile_id):
         return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
 
 def followings(request, profile_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
     user = User.objects.get(pk=profile_id)
     followings = user.followings.all()
     posts = Post.objects.filter(author__in=followings).order_by('-date')

@@ -1,0 +1,16 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+{% for post in posts_of_followings %}
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text">
+                <a href="{% url 'profile' post.author.id %}">{{ post.author }}</a>
+            </p>
+            <p class="card-text">{{ post.post }}</p>
+            <p class="card-text">Likes: {{ post.likes }}</p>
+            <h6 class="card-subtitle mb-2 text-muted">{{ post.date }}</h6>
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}
