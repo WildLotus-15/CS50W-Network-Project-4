@@ -42,6 +42,10 @@ def profile(request, profile_id):
     number_of_followings = len(followings)
     posts = Post.objects.filter(author=profile).order_by('-date')
     number_of_posts = len(posts)
+    if request.user in profile.followers.all():
+        follow_button_value = "unfollow"
+    else:
+        follow_button_value = "follow"
     return render(request, "network/profile.html", {
         "profile": profile,
         "profile_followers": followers,
@@ -50,27 +54,19 @@ def profile(request, profile_id):
         "number_of_followings": number_of_followings,
         "posts": posts,
         "number_of_posts": number_of_posts,
+        "follow_button_value": follow_button_value
     })
 
-def add_follower(request, profile_id):
+def change_following(request, profile_id):
     if request.method == "POST":
         profile = User.objects.get(pk=profile_id)
-        request_user = User.objects.get(pk=request.user.id)
-        profile.followers.add(request.user)
-        request_user.followings.add(profile)
-        return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
-
-def remove_follower(request, profile_id):
-    if request.method == "POST":
-        profile = User.objects.get(pk=profile_id)
-        profile.followers.remove(request.user)
-        request.user.followings.remove(profile)
+        if request.user in profile.followers.all():
+            profile.followers.remove(request.user)
+        else:
+            profile.followers.add(request.user)
         return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
 
 def followings(request, profile_id):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("login"))
-
     user = User.objects.get(pk=profile_id)
     followings = user.followings.all()
     posts = Post.objects.filter(author__in=followings).order_by('-date')
