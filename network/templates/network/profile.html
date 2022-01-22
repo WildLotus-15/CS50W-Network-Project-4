@@ -9,9 +9,15 @@
                     <span style="float: left; margin-top: 6px; margin-left: 10px;">
                         <form action="{% url 'change_following' profile.id %}" method="post">
                             {% csrf_token %}
-                            <button class="btn btn-primary">
-                                {{ follow_button_value }}
-                            </button>
+                            {% if request.user in profile.followers.all %}
+                                <button class="btn btn-danger">
+                                    {{ follow_button_value }}
+                                </button>
+                            {% else %}
+                                <button class="btn btn-primary">
+                                    {{ follow_button_value }}
+                                </button>
+                            {% endif %}
                         </form>
                     </span>
                 {% endif %}

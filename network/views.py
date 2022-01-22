@@ -60,10 +60,12 @@ def profile(request, profile_id):
 def change_following(request, profile_id):
     if request.method == "POST":
         profile = User.objects.get(pk=profile_id)
-        if request.user in profile.followers.all():
-            profile.followers.remove(request.user)
+        if not request.user in profile.followers.all():
+            profile.followers.add(request.user) 
+            request.user.followings.add(profile)
         else:
-            profile.followers.add(request.user)
+            profile.followers.remove(request.user)
+            request.user.followings.remove(profile)
         return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
 
 def followings(request, profile_id):
