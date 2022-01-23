@@ -24,7 +24,7 @@
             </div>
             <div style="flex: 1; margin-top: 12px; margin-right: 307px; font-size: 18px;">
                 <span style="margin-right: 50px;">{{ number_of_posts }} posts</span>
-                <span style="margin-right: 50px">{{ number_of_followers }} followers</span>
+                <span style="margin-right: 50px">{{ number_of_followers }} follower</span>
                 <span>{{ number_of_followings }} following</span>
             </div>
         </div>
@@ -33,20 +33,19 @@
         </div>
     </div>
 
-    <h2>Followers:</h2>
-    <ul>
-        {% for follower in profile_followers %}
-            <li>{{ follower.username }}</li>
-        {% endfor %}
-    </ul>
+<h2>Follower:</h2>
+<ul>
+    {% for follower in profile_followers %}
+        <li>{{ follower.username }}</li>
+    {% endfor %}
+</ul>
 
-    <h2>Followings:</h2>
-    <ul>
-        {% for following in profile_followings %}
-            <li>{{ following.username }}</li>
-        {% endfor %}
-    </ul>
-
+<h2>Following:</h2>
+<ul>
+    {% for following in profile_followings %}
+        <li>{{ following.username }}</li>
+    {% endfor %}
+</ul>
     {% for post in posts %}
         <div class="card">
             <div class="card-body">

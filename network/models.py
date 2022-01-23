@@ -3,8 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    followers = models.ManyToManyField("self", blank=True, related_name="followers")
-    followings = models.ManyToManyField("self", blank=True, related_name="followings")
+    follower = models.ManyToManyField("self", blank=True, related_name="followers", symmetrical=False)
+    following = models.ManyToManyField("self", blank=True, related_name="followings", symmetrical=False)
     bio = models.CharField(max_length=64, default="No Bio")
 
 class Post(models.Model):
@@ -14,4 +14,4 @@ class Post(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.author}: {self.post}"
+        return f"{self.author}: {self.post}"    
