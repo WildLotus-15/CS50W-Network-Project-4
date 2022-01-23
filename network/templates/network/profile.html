@@ -10,13 +10,9 @@
                         <form action="{% url 'change_following' profile.id %}" method="post">
                             {% csrf_token %}
                             {% if request.user in profile.followers.all %}
-                                <button class="btn btn-danger">
-                                    {{ follow_button_value }}
-                                </button>
+                                <button class="btn btn-danger">Unfollow</button>
                             {% else %}
-                                <button class="btn btn-primary">
-                                    {{ follow_button_value }}
-                                </button>
+                                <button class="btn btn-primary">Follow</button>
                             {% endif %}
                         </form>
                     </span>
@@ -33,19 +29,6 @@
         </div>
     </div>
 
-<h2>Follower:</h2>
-<ul>
-    {% for follower in profile_followers %}
-        <li>{{ follower.username }}</li>
-    {% endfor %}
-</ul>
-
-<h2>Following:</h2>
-<ul>
-    {% for following in profile_followings %}
-        <li>{{ following.username }}</li>
-    {% endfor %}
-</ul>
     {% for post in posts %}
         <div class="card">
             <div class="card-body">

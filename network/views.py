@@ -42,10 +42,6 @@ def profile(request, profile_id):
     number_of_followings = len(followings)
     posts = Post.objects.filter(author=profile).order_by('-date')
     number_of_posts = len(posts)
-    if request.user in profile.followers.all():
-        follow_button_value = "unfollow"
-    else:
-        follow_button_value = "follow"
     return render(request, "network/profile.html", {
         "profile": profile,
         "profile_followers": followers,
@@ -54,7 +50,6 @@ def profile(request, profile_id):
         "number_of_followings": number_of_followings,
         "posts": posts,
         "number_of_posts": number_of_posts,
-        "follow_button_value": follow_button_value
     })
 
 def change_following(request, profile_id):
