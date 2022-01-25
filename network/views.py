@@ -1,8 +1,9 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 
 from .models import User, Post
 
@@ -62,6 +63,31 @@ def change_following(request, profile_id):
             profile.followers.add(request.user)
             request.user.followings.add(profile)
         return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
+
+def change_like(request, post_id):
+    if request.method == "POST":
+        post = Post.objects.get(pk=post_id)
+        if request.user in post.likes.all():
+            post.likes.remove(request.user)
+        else:
+            post.likes.add(request.user)
+        return HttpResponseRedirect(reverse("index"))
+
+def edit_post(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    form = NewPostForm(instance=post)
+    if request.method == "POST":
+        if request.user == post.author:
+            form = NewPostForm(request.POST, instance=post)
+            if form.is_valid():
+                form.save()
+                return HttpResponseRedirect(reverse("index"))
+        else:
+            raise PermissionDenied()
+    return render(request, "network/edit_post.html", {
+        "form": form,
+        "post": post
+    })
 
 def followings(request, profile_id):
     user = User.objects.get(pk=profile_id)
