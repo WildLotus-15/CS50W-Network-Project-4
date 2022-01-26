@@ -76,14 +76,14 @@ def change_like(request, post_id):
 def edit_post(request, post_id):
     post = Post.objects.get(pk=post_id)
     form = NewPostForm(instance=post)
-    if request.method == "POST":
-        if request.user == post.author:
+    if request.user == post.author:
+        if request.method == "POST":
             form = NewPostForm(request.POST, instance=post)
             if form.is_valid():
                 form.save()
                 return HttpResponseRedirect(reverse("index"))
-        else:
-            raise PermissionDenied()
+    else:
+        raise PermissionDenied()
     return render(request, "network/edit_post.html", {
         "form": form,
         "post": post

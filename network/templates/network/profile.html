@@ -5,7 +5,6 @@
         <div class="card-header" style="display: flex; height: 80px;">
             <div style="flex: 1;">
                 <span style="float: left; font-size: 30px;">{{ profile.username }} </span>
-                {% if request.user != profile %}
                     <span style="float: left; margin-top: 6px; margin-left: 10px;">
                         <form action="{% url 'change_following' profile.id %}" method="post">
                             {% csrf_token %}
@@ -16,7 +15,6 @@
                             {% endif %}
                         </form>
                     </span>
-                {% endif %}
             </div>
             <div style="flex: 1; margin-top: 12px; margin-right: 307px; font-size: 18px;">
                 <span style="margin-right: 50px;">{{ number_of_posts }} posts</span>
@@ -42,6 +40,9 @@
                     <p style="float: left; margin-top: 4px">{{ post.likes.all.count }}</p>
                 </form>
                 <h6 class="card-subtitle mb-2 text-muted">{{ post.date }}</h6>
+                {% if request.user == post.author %}
+                    <a href="{% url 'edit_post' post.id %}">Edit</a>
+                {% endif %}
             </div>
         </div>
     {% endfor %}
