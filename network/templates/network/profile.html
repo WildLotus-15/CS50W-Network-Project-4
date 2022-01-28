@@ -24,20 +24,6 @@
         </div>
     </div>
 
-    Follower
-    <ul>
-        {% for follower in profile.followers.all %}
-            <li>{{ follower }}</li>
-        {% endfor %}
-    </ul>
-
-    Following
-    <ul>
-        {% for following in profile.following.all %}
-            <li>{{ following }}</li>
-        {% endfor %}
-    </ul>
-
     {% for post in posts %}
         <div class="card">
             <div class="card-body">

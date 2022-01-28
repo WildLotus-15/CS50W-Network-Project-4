@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 
-from .models import User, Post, UserFollowing
+from .models import User, Post
 
 from .forms import NewPostForm
 
@@ -30,7 +30,7 @@ def index(request):
                 "form": form,
             })
     return render(request, "network/index.html", {
-        "form": NewPostForm,
+        "form": NewPostForm(),
         "posts": posts,
         "page_obj": page_obj
     })
@@ -72,7 +72,7 @@ def change_like(request, post_id):
             post.likes.remove(request.user)
         else:
             post.likes.add(request.user)
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER')) # Returning user to the previous page
 
 def edit_post(request, post_id):
     post = Post.objects.get(pk=post_id)
@@ -90,9 +90,9 @@ def edit_post(request, post_id):
         "post": post
     })
 
-def followings(request, profile_id):
-    user_profile = User.objects.get(pk=profile_id)
-    followings = user_profile.following.all()
+def following(request, profile_id):
+    user = User.objects.get(pk=profile_id)
+    followings = user.following.all()
     posts = Post.objects.filter(author__in=followings).order_by('-date')
 
     paginator = Paginator(posts, 5)

@@ -1,8 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+# Via through argument handling follow relationship system 
 class User(AbstractUser):
-    followers = models.ManyToManyField("self", through="UserFollowing", related_name="following" , symmetrical=False)
+    followers = models.ManyToManyField("self", through="UserFollowing", related_name="following", symmetrical=False)
 
 class UserFollowing(models.Model):
     from_user = models.ForeignKey(User, related_name="+", on_delete=models.CASCADE)
@@ -19,9 +20,6 @@ class UserFollowing(models.Model):
                 check=~models.Q(from_user=models.F("to_user"))
             ),
         ]
-    
-    def __str__(self):
-        return f"{self.from_user} to {self.to_user}"
 
 class Post(models.Model):
     post = models.TextField()

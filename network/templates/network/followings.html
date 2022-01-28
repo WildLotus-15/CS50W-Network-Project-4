@@ -8,7 +8,11 @@
                     <a href="{% url 'profile' post.author.id %}">{{ post.author }}</a>
                 </p>
                 <p class="card-text">{{ post.post }}</p>
-                <p class="card-text">Likes: {{ post.likes.all.count }}</p>
+                <form action="{% url 'change_like' post.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="image" src="https://www.starozitnostitrnava.sk/wp-content/uploads/2017/05/Facebook-Like.png" style="height: 30px;">
+                    <p style="float: left; margin-top: 4px">{{ post.likes.all.count }}</p>
+                </form>
                 <h6 class="card-subtitle mb-2 text-muted">{{ post.date }}</h6>
             </div>
         </div>
