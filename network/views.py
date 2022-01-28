@@ -1,11 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 
-from .models import User, Post
+from .models import User, Post, UserFollowing
 
 from .forms import NewPostForm
 
@@ -38,7 +38,7 @@ def index(request):
 def profile(request, profile_id):
     profile = User.objects.get(pk=profile_id)
     followers = profile.followers.all()
-    followings = profile.followings.all()
+    followings = profile.following.all()
     number_of_followers = len(followers)
     number_of_followings = len(followings)
     posts = Post.objects.filter(author=profile).order_by('-date')
@@ -58,10 +58,11 @@ def change_following(request, profile_id):
         profile = User.objects.get(pk=profile_id)
         if request.user in profile.followers.all():
             profile.followers.remove(request.user)
-            request.user.followings.remove(profile)
+            request.user.following.remove(profile)
         else:
             profile.followers.add(request.user)
-            request.user.followings.add(profile)
+            request.user.following.add(profile)
+
         return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
 
 def change_like(request, post_id):
@@ -90,8 +91,8 @@ def edit_post(request, post_id):
     })
 
 def followings(request, profile_id):
-    user = User.objects.get(pk=profile_id)
-    followings = user.followings.all()
+    user_profile = User.objects.get(pk=profile_id)
+    followings = user_profile.following.all()
     posts = Post.objects.filter(author__in=followings).order_by('-date')
 
     paginator = Paginator(posts, 5)

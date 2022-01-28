@@ -8,11 +8,11 @@
                     <span style="float: left; margin-top: 6px; margin-left: 10px;">
                         <form action="{% url 'change_following' profile.id %}" method="post">
                             {% csrf_token %}
-                            {% if request.user in profile.followers.all %}
-                                <button class="btn btn-danger">Unfollow</button>
-                            {% else %}
-                                <button class="btn btn-primary">Follow</button>
-                            {% endif %}
+                                {% if request.user in profile.followers.all %}
+                                    <button class="btn btn-danger">Unfollow</button>
+                                {% else %}
+                                    <button class="btn btn-primary">Follow</button>
+                                {% endif %}
                         </form>
                     </span>
             </div>
@@ -22,10 +22,21 @@
                 <span>{{ number_of_followings }} following</span>
             </div>
         </div>
-        <div class="card-body">
-            <p class="card-text" style="text-align: center;">{{ profile.bio }}</p>
-        </div>
     </div>
+
+    Follower
+    <ul>
+        {% for follower in profile.followers.all %}
+            <li>{{ follower }}</li>
+        {% endfor %}
+    </ul>
+
+    Following
+    <ul>
+        {% for following in profile.following.all %}
+            <li>{{ following }}</li>
+        {% endfor %}
+    </ul>
 
     {% for post in posts %}
         <div class="card">
