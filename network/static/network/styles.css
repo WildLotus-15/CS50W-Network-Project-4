@@ -1,0 +1,16 @@
+#post-author:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#post-author {
+    font-size: 20px;
+}
+
+.card {
+    margin: 10px;
+}
+
+#new-post-title {
+    font-size: 20px;
+}

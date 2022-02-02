@@ -1,108 +1,62 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.core.exceptions import PermissionDenied
 
-from .models import User, Post
+from .models import User, Post, UserProfile
 
-from .forms import NewPostForm
+def posts(request):
+    profile = request.GET.get('profile', None)
+    if (profile):
+        posts = Post.objects.filter(author=profile).order_by('-date')
+    else:
+        posts = Post.objects.order_by('-date')
+    return JsonResponse([post.serialize(request.user) for post in posts], safe=False)
 
-from django.core.paginator import Paginator
+def create_post(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        content = data.get("post")
+        post = Post(author=request.user.profile, post=content)
+        post.save()
+        return JsonResponse({"message": "Post created successfully."}, status=201)
+    return index(request)
 
 def index(request):
-    posts = Post.objects.order_by('-date') # Getting most recent posts
-    paginator = Paginator(posts, 10)
-
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    if request.method == "POST":
-        form = NewPostForm(request.POST)
-        if form.is_valid():
-            NewPost = form.save(commit=False)
-            NewPost.author = request.user
-            NewPost.save()
-            return HttpResponseRedirect(reverse("index"))
-        else:
-            return render(request, "network/index.html", {
-                "form": form,
-            })
-    return render(request, "network/index.html", {
-        "form": NewPostForm(),
-        "posts": posts,
-        "page_obj": page_obj
-    })
+    return render(request, "network/index.html")
 
 def profile(request, profile_id):
-    profile = User.objects.get(pk=profile_id)
-    followers = profile.followers.all()
-    followings = profile.following.all()
-    number_of_followers = len(followers)
-    number_of_followings = len(followings)
-    posts = Post.objects.filter(author=profile).order_by('-date')
-    number_of_posts = len(posts)
-    return render(request, "network/profile.html", {
-        "profile": profile,
-        "profile_followers": followers,
-        "number_of_followers": number_of_followers,
-        "profile_followings": followings,
-        "number_of_followings": number_of_followings,
-        "posts": posts,
-        "number_of_posts": number_of_posts,
-    })
+    profile = UserProfile.objects.get(pk=profile_id)
+    return JsonResponse(profile.serialize(request.user), status=200, safe=False)
 
-def change_following(request, profile_id):
-    if request.method == "POST":
-        profile = User.objects.get(pk=profile_id)
-        if request.user in profile.followers.all():
-            profile.followers.remove(request.user)
-            request.user.following.remove(profile)
-        else:
-            profile.followers.add(request.user)
-            request.user.following.add(profile)
-
-        return HttpResponseRedirect(reverse("profile", args=(profile.id,)))
-
-def change_like(request, post_id):
-    if request.method == "POST":
-        post = Post.objects.get(pk=post_id)
-        if request.user in post.likes.all():
-            post.likes.remove(request.user)
-        else:
-            post.likes.add(request.user)
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER')) # Returning user to the previous page
-
-def edit_post(request, post_id):
-    post = Post.objects.get(pk=post_id)
-    form = NewPostForm(instance=post)
-    if request.user == post.author:
-        if request.method == "POST":
-            form = NewPostForm(request.POST, instance=post)
-            if form.is_valid():
-                form.save()
-                return HttpResponseRedirect(reverse("index"))
+def update_follow(request, profile_id):
+    profile = UserProfile.objects.get(pk=profile_id)
+    if request.user in profile.followers.all():
+        profile.followers.remove(request.user)
+        request.user.following.remove(profile)
+        newStatus = False
     else:
-        raise PermissionDenied()
-    return render(request, "network/edit_post.html", {
-        "form": form,
-        "post": post
-    })
+        profile.followers.add(request.user)
+        request.user.following.add(profile)
+        newStatus = True
+    return JsonResponse({"newFollower": newStatus, "newAmount": profile.followers.count()}, status=200)
 
-def following(request, profile_id):
-    user = User.objects.get(pk=profile_id)
-    followings = user.following.all()
-    posts = Post.objects.filter(author__in=followings).order_by('-date')
+def load_followed_profiles(request):
+    followed_profiles = request.user.following.all()
+    posts = Post.objects.filter(author__in=followed_profiles).all()
+    return JsonResponse([post.serialize(request.user) for post in posts], safe=False)
 
-    paginator = Paginator(posts, 5)
-
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, "network/followings.html", {
-        "page_obj": page_obj
-    })
+def update_like(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    if request.user.profile in post.likes.all():
+        post.likes.remove(request.user.profile)
+        newStatus = False
+    else:
+        post.likes.add(request.user.profile)
+        newStatus = True
+    return JsonResponse({"liked": newStatus, "newAmount": post.likes.count()}, status=200)
 
 def login_view(request):
     if request.method == "POST":

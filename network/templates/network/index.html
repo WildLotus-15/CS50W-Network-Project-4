@@ -2,49 +2,39 @@
 {% load static %}
 
 {% block body %}
-    <h1>All Posts</h1>
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">New Post</h5>
-            <form action="{% url 'index' %}" method="post">
-                {% csrf_token %}
-                {{ form }}
-                <input type="submit" class="btn btn-primary" value="Post">
-            </form>
-        </div>
+    <div id='profile'>
+        <div class="card">
+            <div class="card-header" style="display: flex;">
+                <div style="flex: 1;">
+                    <span id='profile-username'></span>
+                    <button id="follow-button" type="button" class="btn btn-primary" style="margin-left: 20px"></button>
+                </div>
+                <div style="flex: 1;">
+                    <span id='followers-amount'></span>
+                    <span>followers</span>
+                </div>
+                <div style="flex: 1;">
+                    <span id='following-amount'></span>
+                    <span>following</span>
+                </div>
+            </div>
+        </div>    
     </div>
-    {% for post in page_obj %}
+    <div id="newPost">
         <div class="card">
             <div class="card-body">
-                <a href="{% url 'profile' post.author.pk %}">{{ post.author }}</a>
-                <p class="card-text" style="font-size: 20px; margin-bottom: 0px;">{{ post.post }}</p>
-                <form action="{% url 'change_like' post.id %}" method="post">
-                    {% csrf_token %}
-                    <input type="image" src="{% static 'network/image/download3.png' %}" style="height: 30px;">
-                    <p style="float: left; margin-top: 4px">{{ post.likes.all.count }}</p>
+                <h5 class="card-title" id="new-post-title">New Post</h5>
+                <form>
+                    <input type="text" id="post_content" class="form-control col-20 input-lg">
+                    <input type="submit" class="btn btn-primary" value="Post">
                 </form>
-                <h6 class="card-subtitle mb-2 text-muted">{{ post.date }}</h6>
-                {% if request.user == post.author %}
-                    <a href="{% url 'edit_post' post.id %}">Edit</a>
-                {% endif %}
             </div>
         </div>
-    {% endfor %}
-    <div class="pagination">
-        <span class="step-links">
-            {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-            {% endif %}
-    
-            <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-            </span>
-    
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-            {% endif %}
-        </span>
     </div>
+
+    <div id="posts">
+
+    </div>
+{% endblock %} {% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}
