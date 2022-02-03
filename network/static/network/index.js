@@ -88,6 +88,11 @@ function build_post(post) {
     likes.innerHTML = post.likes
     likes_row.append(likes)
 
+    const likes_text = document.createElement('div')
+    likes_text.innerHTML = "like"
+    likes_text.id = "likes-text"
+    likes_row.append(likes_text)
+
     const like_button = document.createElement('button')
     like_button.id = `like-button-${post.id}`
     like_button.className = "btn btn-primary"
@@ -102,7 +107,7 @@ function build_post(post) {
         const edit = document.createElement('button')
         edit.className = "card-text col-auto btn btn-link" 
         edit.innerHTML = "Edit"
-        edit.addEventListener('click', () => edit_post(post))
+        edit.addEventListener('click', () => edit_post(post))   
         likes_row.append(edit)
     }
 
@@ -151,7 +156,6 @@ function show_profile(author_id) {
             }
         }
         follow_button.addEventListener('click', () => update_follow(author_id))
-        history.pushState({profile: profile}, "", `profile/${profile.user_username}`)
     })
     window.scrollTo(0, 0)
 }
@@ -179,39 +183,59 @@ function getCookie(name) {
 }
 
 function edit_post(post) {
-    const content = document.getElementById(`post_content_${post.id}`)
+    const content = document.getElementById(`post_content_${post.id}`);
+        
+    const post_body = content.parentNode;    
+        
+    const new_content_form = document.createElement('input');
+    new_content_form.id = `new_content_${post.id}`;
+    new_content_form.type = "textarea";
+    new_content_form.className = "form-control col-8";
+    new_content_form.value = content.innerHTML;
 
-    const post_body = content.parentNode
+    post_body.append(new_content_form)
 
-    const post_update = document.createElement('input')
-    post_update.id = `post_update_${post.id}`
-    post_update.type = 'textarea'
-    post_update.className = 'form-control col-6'
-    post_update.value = content.innerHTML
+    document.getElementById(`post_content_${post.id}`).remove()
 
     const save_button = document.createElement('button')
-    save_button.className = 'btn btn-info col-auto'
-    save_button.type = 'button'
+    save_button.className = "btn btn-info"
     save_button.innerHTML = "Save"
-    save_button.addEventListener('click', () => {
-        const post_update = document.getElementById(`post_update_${post.id}`)
+    post_body.append(save_button)
+
+    save_button.addEventListener("click", () => {
+        const new_content = document.getElementById(`new_content_${post.id}`).value
         fetch('/create_post', {
             method: "PUT",
             headers: {
-                'X-CSRFToken': getCookie('csrftoken')
+                "X-CSRFToken": getCookie("csrftoken")
             },
             body: JSON.stringify({
-                post_update: post_update
+                post_id: post.id,
+                new_content: new_content
             })
         })
         .then(response => response.json())
         .then(response => {
-            if (response.result) {
-                content.innerHTML = post_update
+            if (response.success) {
+                content.innerHTML = new_content
             } else {
                 alert("You can't edit this post!")
-            }    
+            }
+            new_content_form.remove()
+            save_button.remove()
             post_body.append(content)
         })
+    })
+
+    const cancel_button = document.createElement("button")
+    cancel_button.className = "btn btn-danger"
+    cancel_button.innerHTML = "Cancel"
+    post_body.append(cancel_button)
+
+    cancel_button.addEventListener('click', () => {
+        new_content_form.remove()
+        save_button.remove()
+        post_body.append(content)
+        cancel_button.remove()
     })
 }

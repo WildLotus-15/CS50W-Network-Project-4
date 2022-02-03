@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 
 from .models import User, Post, UserProfile
 
@@ -22,6 +23,14 @@ def create_post(request):
         post = Post(author=request.user.profile, post=content)
         post.save()
         return JsonResponse({"message": "Post created successfully."}, status=201)
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        post_id = int(data.get("post_id"))
+        new_content = data.get("new_content")
+        post = Post.objects.get(pk=post_id)
+        post.post = new_content
+        post.save()
+        return JsonResponse({"success": True}, status=200)
     return index(request)
 
 def index(request):
