@@ -183,19 +183,20 @@ function getCookie(name) {
 }
 
 function edit_post(post) {
-    const content = document.getElementById(`post_content_${post.id}`);
+    const content = document.getElementById(`post_content_${post.id}`)
+    const likes_row = document.getElementById(`likes_row_${post.id}`)
         
-    const post_body = content.parentNode;    
+    const post_body = content.parentNode
         
-    const new_content_form = document.createElement('input');
-    new_content_form.id = `new_content_${post.id}`;
-    new_content_form.type = "textarea";
-    new_content_form.className = "form-control col-8";
-    new_content_form.value = content.innerHTML;
-
+    const new_content_form = document.createElement('input')
+    new_content_form.id = `new_content_${post.id}`
+    new_content_form.type = "textarea"
+    new_content_form.className = "form-control col-8"
+    new_content_form.value = content.innerHTML
     post_body.append(new_content_form)
 
     document.getElementById(`post_content_${post.id}`).remove()
+    document.getElementById(`likes_row_${post.id}`).remove()
 
     const save_button = document.createElement('button')
     save_button.className = "btn btn-info"
@@ -223,7 +224,9 @@ function edit_post(post) {
             }
             new_content_form.remove()
             save_button.remove()
+            cancel_button.remove()
             post_body.append(content)
+            post_body.append(likes_row)
         })
     })
 
@@ -235,7 +238,8 @@ function edit_post(post) {
     cancel_button.addEventListener('click', () => {
         new_content_form.remove()
         save_button.remove()
-        post_body.append(content)
         cancel_button.remove()
+        post_body.append(content)
+        post_body.append(likes_row)
     })
 }

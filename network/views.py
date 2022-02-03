@@ -4,7 +4,6 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.core.exceptions import PermissionDenied
 
 from .models import User, Post, UserProfile
 
@@ -31,6 +30,7 @@ def create_post(request):
         post.post = new_content
         post.save()
         return JsonResponse({"success": True}, status=200)
+    # if request method is GET redirecting to defult route
     return index(request)
 
 def index(request):
