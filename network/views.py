@@ -4,16 +4,26 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 
 from .models import User, Post, UserProfile
+
+from django.core.paginator import Paginator
 
 def posts(request):
     profile = request.GET.get('profile', None)
     if (profile):
         posts = Post.objects.filter(author=profile).order_by('-date')
+        paginator = Paginator(posts, 10)
+        page_obj = paginator.get_page(request.GET.get("page"))
     else:
         posts = Post.objects.order_by('-date')
-    return JsonResponse([post.serialize(request.user) for post in posts], safe=False)
+        paginator = Paginator(posts, 10)
+        page_obj = paginator.get_page(request.GET.get("page"))
+    return JsonResponse({
+        "posts": [post.serialize(request.user) for post in page_obj],
+        "num_pages": paginator.num_pages},
+        safe=False)
 
 def create_post(request):
     if request.method == "POST":
@@ -29,9 +39,10 @@ def create_post(request):
         post = Post.objects.get(pk=post_id)
         post.post = new_content
         post.save()
-        return JsonResponse({"success": True}, status=200)
-    # if request method is GET redirecting to defult route
-    return index(request)
+        if request.user.profile == post.author:
+            return JsonResponse({"success": True}, status=200)
+        else:
+            raise PermissionDenied()
 
 def index(request):
     return render(request, "network/index.html")
@@ -54,8 +65,13 @@ def update_follow(request, profile_id):
 
 def load_followed_profiles(request):
     followed_profiles = request.user.following.all()
-    posts = Post.objects.filter(author__in=followed_profiles).all()
-    return JsonResponse([post.serialize(request.user) for post in posts], safe=False)
+    posts = Post.objects.filter(author__in=followed_profiles).order_by('-date')
+    paginator = Paginator(posts, 10)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    return JsonResponse({
+        "posts": [post.serialize(request.user) for post in page_obj],
+        "num_pages": paginator.num_pages},
+        safe=False)
 
 def update_like(request, post_id):
     post = Post.objects.get(pk=post_id)

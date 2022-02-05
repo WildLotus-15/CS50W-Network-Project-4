@@ -28,10 +28,62 @@ function load_posts(addon, page) {
     .then(posts => {
         console.log(posts)
         document.getElementById('posts').innerHTML = ''
-        posts.forEach(post => {
+        build_paginator(addon, page, posts.num_pages);
+        posts.posts.forEach(post => {
             build_post(post)
         });
     })
+}
+
+function build_paginator(addon, page, num_pages) {
+    page_list = document.getElementById('pagination')
+    page_list.innerHTML = ""
+
+    const previous = document.createElement('li')
+    if(page == 1){
+        previous.className = "page-item disabled"    
+    } else {
+        previous.className = "page-item"    
+        previous.addEventListener('click', () => load_posts(addon, page-1));
+    }        
+    const page_a_previous = document.createElement('a')
+    page_a_previous.className = "page-link"
+
+    page_a_previous.href = "#"
+    page_a_previous.innerHTML = "Previous"
+    previous.append(page_a_previous)   
+    page_list.append(previous)
+    
+    for (let item = 1; item <= num_pages; item++) {
+        const page_icon = document.createElement('li')  
+        if(item == page) {
+            page_icon.className = "page-item active"
+        } else {
+            page_icon.className = "page-item"
+            page_icon.addEventListener('click', () => load_posts(addon, item))
+        }        
+        const page_a = document.createElement('a')
+        page_a.className = "page-link"
+        page_a.href = "#"
+        page_a.innerHTML = item
+        page_icon.append(page_a)
+
+        page_list.append(page_icon)
+    }
+    
+    const next = document.createElement('li')        
+    if(page == num_pages){
+        next.className = "page-item disabled"    
+    } else {
+        next.className = "page-item"    
+        next.addEventListener('click', () => load_posts(addon, page+1))
+    }   
+    const page_a_next = document.createElement('a')
+    page_a_next.className = "page-link"
+    page_a_next.href = "#"
+    page_a_next.innerHTML = "Next"
+    next.append(page_a_next)
+    page_list.append(next)
 }
 
 function create_post() {
@@ -146,6 +198,7 @@ function show_profile(author_id) {
         console.log(profile)
         document.getElementById('followers-amount').innerHTML = profile.followers
         document.getElementById('following-amount').innerHTML = profile.following
+        document.getElementById('posts-amount').innerHTML = profile.posts
         document.getElementById('profile-username').innerHTML = profile.user_username
         if (profile.follow_available) {
             follow_button.style.display = 'unset'

@@ -16,8 +16,9 @@ class UserProfile(models.Model):
             "user_username": self.user.username,
             "followers": self.followers.count(),
             "following": self.user.following.count(),
+            "posts": Post.objects.filter(author=self.user.profile).count(),
             "currently_following": not user.is_anonymous and self in user.following.all(),
-            "follow_available": (not user.is_anonymous) and self.user != user
+            "follow_available": not user.is_anonymous and self.user != user
         }
     
 class Post(models.Model):
