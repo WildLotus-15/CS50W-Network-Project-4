@@ -1,7 +1,7 @@
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
@@ -25,6 +25,7 @@ def posts(request):
         "num_pages": paginator.num_pages},
         safe=False)
 
+
 def create_post(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -43,13 +44,17 @@ def create_post(request):
             return JsonResponse({"success": True}, status=200)
         else:
             raise PermissionDenied()
+    else:
+        return HttpResponse(status=401)
 
 def index(request):
     return render(request, "network/index.html")
 
+
 def profile(request, profile_id):
     profile = UserProfile.objects.get(pk=profile_id)
     return JsonResponse(profile.serialize(request.user), status=200, safe=False)
+
 
 def update_follow(request, profile_id):
     profile = UserProfile.objects.get(pk=profile_id)
@@ -63,6 +68,7 @@ def update_follow(request, profile_id):
         newStatus = True
     return JsonResponse({"newFollower": newStatus, "newAmount": profile.followers.count()}, status=200)
 
+
 def load_followed_profiles(request):
     followed_profiles = request.user.following.all()
     posts = Post.objects.filter(author__in=followed_profiles).order_by('-date')
@@ -73,6 +79,7 @@ def load_followed_profiles(request):
         "num_pages": paginator.num_pages},
         safe=False)
 
+
 def update_like(request, post_id):
     post = Post.objects.get(pk=post_id)
     if request.user.profile in post.likes.all():
@@ -82,6 +89,7 @@ def update_like(request, post_id):
         post.likes.add(request.user.profile)
         newStatus = True
     return JsonResponse({"liked": newStatus, "newAmount": post.likes.count()}, status=200)
+
 
 def login_view(request):
     if request.method == "POST":

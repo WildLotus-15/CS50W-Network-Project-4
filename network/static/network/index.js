@@ -155,6 +155,8 @@ function build_post(post) {
     }
     likes_row.append(like_button)
 
+    like_button.addEventListener('click', () => update_like(post))
+
     if (post.editable) {
         const edit = document.createElement('button')
         edit.className = "card-text col-auto btn btn-link" 
@@ -162,8 +164,6 @@ function build_post(post) {
         edit.addEventListener('click', () => edit_post(post))   
         likes_row.append(edit)
     }
-
-    like_button.addEventListener('click', () => update_like(post))
 
     card_body.append(likes_row)
     post_card.append(card_body)
